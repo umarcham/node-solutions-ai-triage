@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node Solutions | AI Request Triage Assistant</title>
+  <meta name="description" content="AI Request Triage Assistant for Node Solutions - Automatically summarizes, categorizes, prioritizes, routes, and drafts professional first responses for unstructured business requests.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="logo-mark">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="3" fill="#6366F1"/>
+            <circle cx="4" cy="12" r="2" fill="#818CF8"/>
+            <circle cx="20" cy="12" r="2" fill="#818CF8"/>
+            <circle cx="12" cy="4" r="2" fill="#818CF8"/>
+            <circle cx="12" cy="20" r="2" fill="#818CF8"/>
+            <path d="M6 12H9M15 12H18M12 6V9M12 15V18" stroke="#6366F1" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">NODE SOLUTIONS <span class="stage-tag">STAGE TWO</span></div>
+          <h1 class="brand-subtitle">AI Request Triage Assistant</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-chip" id="aiStatusChip">
+          <span class="status-dot"></span>
+          <span id="modelIndicator">Gemini 3.5 Flash Lite</span>
+        </div>
+        <button class="icon-btn" id="configBtn" title="API Settings & Information" aria-label="API Settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-layout">
+
+    <section class="metrics-row" aria-label="Operational Metrics">
+      <div class="metric-card">
+        <div class="metric-label">Total Triaged</div>
+        <div class="metric-value" id="kpiTotal">0</div>
+        <div class="metric-sub">Incoming requests processed</div>
+      </div>
+      <div class="metric-card urgent-highlight">
+        <div class="metric-label">Urgent Escalations</div>
+        <div class="metric-value" id="kpiUrgent">0</div>
+        <div class="metric-sub">Security & outages flagged</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Pending Team Review</div>
+        <div class="metric-value" id="kpiPending">0</div>
+        <div class="metric-sub">Drafts awaiting dispatch</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Dispatched Responses</div>
+        <div class="metric-value" id="kpiDispatched">0</div>
+        <div class="metric-sub">Approved & sent to client</div>
+      </div>
+    </section>
+
+    <div class="workspace-grid">
+
+      <section class="panel panel-left" aria-label="Input Request Panel">
+        <div class="panel-header">
+          <div class="panel-title-wrap">
+            <span class="step-badge">1</span>
+            <h2>Incoming Request Ingestion</h2>
+          </div>
+          <span class="badge-sub">Email / Chat / Form</span>
+        </div>
+
+        <div class="quick-picks-section">
+          <div class="section-subheading">
+            <span>Challenge Mock Requests</span>
+            <span class="hint">Click to load</span>
+          </div>
+          <div class="mock-grid" id="mockPicksContainer"></div>
+        </div>
+
+        <form id="triageForm" class="triage-form">
+          <div class="form-header-row">
+            <label for="requestInput" class="form-label">Client Message Text</label>
+            <button type="button" class="btn-text" id="clearBtn">Clear</button>
+          </div>
+          <div class="textarea-container">
+            <textarea
+              id="requestInput"
+              rows="6"
+              placeholder="Paste or write any customer message, email, or chat inquiry here..."
+              required
+            ></textarea>
+            <div class="textarea-footer">
+              <span id="charCount">0 characters</span>
+              <span class="support-hint">Supports any arbitrary or mock request</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="submitBtn" class="btn-primary">
+              <span class="btn-icon">⚡</span>
+              <span class="btn-text-main">Run AI Triage</span>
+              <span class="loader-spinner" id="btnSpinner" style="display: none;"></span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel panel-right" aria-label="Triage Decision Output">
+        <div class="panel-header">
+          <div class="panel-title-wrap">
+            <span class="step-badge">2</span>
+            <h2>Automated Triage Decision</h2>
+          </div>
+          <div class="engine-tag" id="engineBadge">Gemini AI</div>
+        </div>
+
+        <div id="securityAlertBanner" class="security-banner" style="display: none;">
+          <div class="security-icon" id="securityAlertIcon">🚨</div>
+          <div>
+            <div class="security-title" id="securityAlertTitle">CRITICAL SECURITY / PRIVACY INCIDENT FLAGGED</div>
+            <div class="security-desc" id="securityAlertText">Potential customer PII or unauthorized workspace exposure detected. Instant access revocation initiated.</div>
+          </div>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+          <div class="empty-illustration">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </div>
+          <h3>Awaiting Input</h3>
+          <p>Select any of the 6 mock requests on the left or type your own message to see instant classification, priority scoring, team routing, and professional response drafting.</p>
+        </div>
+
+        <div id="decisionContent" class="decision-content" style="display: none;">
+
+          <div class="decision-card summary-card">
+            <div class="card-label">EXECUTIVE SUMMARY</div>
+            <p id="resSummary" class="summary-text">—</p>
+          </div>
+
+          <div class="decision-meta-grid">
+            <div class="meta-item">
+              <div class="card-label">CATEGORY</div>
+              <div id="resCategory" class="badge badge-category">Other</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="card-label">PRIORITY</div>
+              <div id="resPriority" class="badge badge-priority">Medium</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="card-label">ROUTED OWNER</div>
+              <div id="resOwner" class="badge badge-owner">Client Success</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="card-label">AI CONFIDENCE</div>
+              <div id="resConfidence" class="badge badge-confidence">98%</div>
+            </div>
+          </div>
+
+          <div class="decision-card reason-card">
+            <div class="card-label">PRIORITY RATIONALE</div>
+            <p id="resPriorityReason" class="reason-text">—</p>
+          </div>
+
+          <div class="decision-card response-card">
+            <div class="response-header">
+              <div>
+                <div class="card-label">PROFESSIONAL FIRST RESPONSE (REVIEW & SEND)</div>
+                <div class="response-sub">Editable by team member prior to sending</div>
+              </div>
+              <div class="response-actions">
+                <button type="button" class="btn-secondary" id="copyResponseBtn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+                <button type="button" class="btn-success" id="dispatchResponseBtn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                  <span>Approve & Dispatch</span>
+                </button>
+              </div>
+            </div>
+            <textarea id="resDraftResponse" class="response-textarea" rows="7"></textarea>
+          </div>
+
+          <div class="diagnostics-bar">
+            <span id="resEngineInfo">Engine: Gemini 3.5 Flash Lite</span>
+            <span id="resLatency">Latency: 1.2s</span>
+            <span id="resTicketId">Ticket: TKT-1003</span>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <section class="panel panel-history" aria-label="Triage Queue History">
+      <div class="panel-header history-header">
+        <div class="history-title-group">
+          <h2>Operational Queue & Triage History</h2>
+          <span class="count-pill" id="historyCountPill">0 tickets</span>
+        </div>
+
+        <div class="history-controls">
+          <input type="text" id="historySearch" placeholder="Search tickets by keywords..." class="search-input">
+          
+          <select id="filterCategory" class="filter-select" aria-label="Filter by Category">
+            <option value="All">All Categories</option>
+            <option value="Sales">Sales</option>
+            <option value="Support">Support</option>
+            <option value="Billing">Billing</option>
+            <option value="Technical">Technical</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <select id="filterPriority" class="filter-select" aria-label="Filter by Priority">
+            <option value="All">All Priorities</option>
+            <option value="Urgent">Urgent</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+
+          <select id="filterOwner" class="filter-select" aria-label="Filter by Owner">
+            <option value="All">All Owners</option>
+            <option value="Sales Team">Sales Team</option>
+            <option value="Client Success">Client Success</option>
+            <option value="Finance">Finance</option>
+            <option value="Engineering">Engineering</option>
+          </select>
+
+          <button id="exportCsvBtn" class="btn-secondary" title="Export as CSV">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th>Time</th>
+              <th>Request Preview</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Owner</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="configModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>System & AI Configuration</h3>
+        <button type="button" class="close-btn" id="closeModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="info-group">
+          <label class="form-label">Active Gemini Model</label>
+          <input type="text" id="configModelInput" class="text-input" value="gemini-3.5-flash-lite">
+          <span class="hint">Configured via <code>.env</code> or customized here.</span>
+        </div>
+        <div class="info-group">
+          <label class="form-label">API Key</label>
+          <input type="password" id="configApiKeyInput" class="text-input" placeholder="Enter Gemini API key (or leave empty for server env)">
+          <span class="hint">Key is kept locally in browser memory or defaults to server environment.</span>
+        </div>
+        <div class="info-box">
+          <strong>Dual-Engine Resilience:</strong>
+          <p>If no API key is set or the network is offline, the system automatically falls back to its deterministic rule engine, ensuring 100% test reliability during demonstrations.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="saveConfigCloseBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "node-solutions-ai-triage",
+  "version": "1.0.0",
+  "description": "AI Request Triage Assistant for Node Solutions Stage Two Challenge",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test_triage.js"
+  },
+  "keywords": ["ai", "triage", "gemini", "node-solutions", "customer-ops"],
+  "author": "Node Solutions Candidate",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
